@@ -21,8 +21,12 @@ app.use(
 
 const authRoutes = require('../src/routes/authRoutes');
 const userRoutes = require('../src/routes/userRoutes');
+const quizzRoutes = require('../src/routes/quizzRoutes');
+const questionRoutes = require('../src/routes/questionRoutes');
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/quizz', quizzRoutes);
+app.use('/api/question', questionRoutes);
 
 require('../src/utils/deleteUnverified');
 

@@ -18,32 +18,45 @@ async function createQuizz(
     isPublished,
     authorId,
   });
-
-  await quizz.save();
-  return quizz;
+  try {
+    await quizz.save();
+    return quizz;
+  } catch (err) {
+    console.error('Error adding quizz', err.message);
+    throw err;
+  }
 }
 
 async function editQuizz(id, title, description, difficulty, duration, isPrivate, isPublished) {
-  const updated = await Quizz.findByIdAndUpdate(
-    id,
-    {
-      title,
-      description,
-      difficulty,
-      duration,
-      isPrivate,
-      isPublished,
-      updatedAt: new Date(),
-    },
-    { new: true }
-  );
-
-  return updated;
+  try {
+    const edited = await Quizz.findByIdAndUpdate(
+      id,
+      {
+        title,
+        description,
+        difficulty,
+        duration,
+        isPrivate,
+        isPublished,
+        updatedAt: new Date(),
+      },
+      { new: true }
+    );
+    return edited;
+  } catch (err) {
+    console.error('Error editing quizz', err.message);
+    throw err;
+  }
 }
 
 async function deleteQuizz(id) {
-  const deleted = await Quizz.findByIdAndDelete(id);
-  return deleted;
+  try {
+    const deleted = await Quizz.findByIdAndDelete(id);
+    return deleted;
+  } catch (err) {
+    console.error('Error deleting quizz', err.message);
+    throw err;
+  }
 }
 
 module.exports = { createQuizz, editQuizz, deleteQuizz };
