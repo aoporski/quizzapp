@@ -1,4 +1,4 @@
-const questionService = require('../services/question/question');
+const questionService = require('../services/quizz/question');
 
 const addQuestion = async (req, res) => {
   const { quizId, type, text, options, correctAnswers, points, hint } = req.body;

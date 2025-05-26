@@ -1,7 +1,10 @@
 "use client";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 const HomePage = () => {
+  const [isLogged, setIsLogged] = useState(false);
+
   return (
     <div>
       <h1>Welcome to Thousand</h1>

@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Tysiąc App",
-  description: "Gra karciana online",
+  title: "Quizz App",
+  description: "App made for sharing quizzes.",
 };
 
 export default function RootLayout({ children }) {
