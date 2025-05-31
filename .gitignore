@@ -1,0 +1,4 @@
+.env
+/keycloak/export
+auth_service/
+session_service/

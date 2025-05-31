@@ -16,20 +16,21 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:3000/api/auth/login", {
+      const res = await fetch("http://localhost:3001/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ email: form.email, password: form.password }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || "Login failed");
+        setError(data.error_description || "Login failed");
         return;
       }
 
-      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("accessToken", data.access_token);
+      localStorage.setItem("refreshToken", data.refresh_token);
       router.push("/");
     } catch (err) {
       setError("Network error");
@@ -65,7 +66,7 @@ export default function Login() {
 
       <hr />
 
-      <a href="http://localhost:3000/api/auth/google">
+      <a href="http://localhost:3001/api/auth/google">
         <button>Zaloguj przez Google</button>
       </a>
     </div>
