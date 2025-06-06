@@ -3,8 +3,11 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
+import { useAuth } from "@/context/AuthContext";
 
 const CreateQuizzForm = () => {
+  const { token } = useAuth();
+
   const initialValues = {
     title: "",
     description: "",
@@ -17,7 +20,9 @@ const CreateQuizzForm = () => {
   const validationSchema = Yup.object({
     title: Yup.string().required("Required"),
     description: Yup.string(),
-    difficulty: Yup.string().required("Required"),
+    difficulty: Yup.string()
+      .oneOf(["easy", "medium", "hard"], "Invalid difficulty")
+      .required("Required"),
     duration: Yup.number().required("Required").min(1, "Min. 1 minute"),
     isPrivate: Yup.boolean(),
     isPublished: Yup.boolean(),
@@ -25,7 +30,15 @@ const CreateQuizzForm = () => {
 
   const handleSubmit = async (values, { resetForm }) => {
     try {
-      await axios.post("http://localhost:3000/api/quizz/create", values);
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/quizzes/create`,
+        values,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       alert("Quiz created!");
       resetForm();
     } catch (err) {

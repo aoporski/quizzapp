@@ -7,20 +7,27 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      username: {
+      sub: {
+        // dawniej: keycloakId
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      preferred_username: {
+        // dawniej: username
         type: DataTypes.STRING,
         allowNull: true,
         unique: true,
       },
-      name: {
+      firstName: {
+        // dawniej: name
         type: DataTypes.STRING,
         allowNull: true,
-        unique: false,
       },
-      surname: {
+      lastName: {
+        // dawniej: surname
         type: DataTypes.STRING,
         allowNull: true,
-        unique: false,
       },
       email: {
         type: DataTypes.STRING,
@@ -31,29 +38,26 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      password: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      isverified: {
+      isVerified: {
         type: DataTypes.BOOLEAN,
-        allowNull: false,
         defaultValue: false,
+        field: 'isverified',
       },
-      googleId: {
-        type: DataTypes.STRING,
-        unique: true,
-        allowNull: true,
+      isBanned: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        field: 'isbanned',
       },
       role: {
         type: DataTypes.ENUM('user', 'admin'),
         defaultValue: 'user',
-        allowNull: false
+        allowNull: false,
       },
     },
     {
       tableName: 'Users',
     }
   );
+
   return User;
 };

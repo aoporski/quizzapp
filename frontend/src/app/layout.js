@@ -1,3 +1,5 @@
+import { AuthProvider } from "@/context/AuthContext";
+
 export const metadata = {
   title: "Quizz App",
   description: "App made for sharing quizzes.",
@@ -6,7 +8,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="pl">
-      <body>{children}</body>
+      <body>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

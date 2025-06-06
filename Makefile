@@ -30,4 +30,9 @@ keycloak-import:
 		--dir /opt/keycloak/data/export \
 		--realm master \
 		--override true
+		
+psql:
+	docker exec -it quizzapp-postgres psql -U admin -d user_service_db
 
+mongo:
+	docker exec -it quizzapp-mongo mongosh

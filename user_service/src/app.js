@@ -21,9 +21,9 @@ app.use(
 
 const userRoutes = require('../src/routes/userRoutes');
 
-app.use('/api/user', userRoutes);
+app.use('/', userRoutes);
 
-require('../src/utils/deleteUnverified');
+// require('../src/utils/deleteUnverified');
 
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Not Found' });

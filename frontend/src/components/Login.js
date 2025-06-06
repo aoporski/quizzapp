@@ -1,74 +1,79 @@
 "use client";
-import { useState } from "react";
+
+import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function Login() {
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
+export default function LoginClient() {
+  const { keycloak, isAuthenticated } = useAuth();
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
+  useEffect(() => {
+    const syncUser = async () => {
+      try {
+        const res = await fetch("/api/user/sync", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${keycloak.token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
-    try {
-      const res = await fetch("http://localhost:3001/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email, password: form.password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error_description || "Login failed");
-        return;
+        if (!res.ok) {
+          const error = await res.json();
+          console.error("Sync error:", error.message);
+        } else {
+          console.log("✅ User synced to DB");
+        }
+      } catch (err) {
+        console.error("❌ Failed to sync user:", err);
       }
+    };
 
-      localStorage.setItem("accessToken", data.access_token);
-      localStorage.setItem("refreshToken", data.refresh_token);
+    if (isClient && isAuthenticated && keycloak?.token) {
+      syncUser();
       router.push("/");
-    } catch (err) {
-      setError("Network error");
     }
-  };
+  }, [isClient, isAuthenticated, keycloak]);
+
+  if (!isClient) return null;
 
   return (
     <div>
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
-        <br />
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
-        <br />
-        <button type="submit">Log in</button>
-      </form>
+      <h2>{isAuthenticated ? "You're logged in!" : "Login"}</h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <hr />
-
-      <a href="http://localhost:3001/api/auth/google">
-        <button>Zaloguj przez Google</button>
-      </a>
+      {!isAuthenticated ? (
+        <>
+          <button onClick={() => keycloak?.login()}>
+            Log in with username/password
+          </button>
+          <br />
+          <button
+            onClick={() =>
+              keycloak?.login({
+                idpHint: "google",
+                redirectUri: window.location.origin + "/?ts=" + Date.now(),
+              })
+            }
+          >
+            Log in with Google
+          </button>
+        </>
+      ) : (
+        <button
+          onClick={() =>
+            keycloak?.logout({ redirectUri: window.location.origin })
+          }
+        >
+          Logout
+        </button>
+      )}
     </div>
   );
 }

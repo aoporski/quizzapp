@@ -1,5 +1,9 @@
 "use client";
-import Login from "@/components/Login";
+import dynamic from "next/dynamic";
+
+const Login = dynamic(() => import("@/components/Login"), {
+  ssr: false,
+});
 import RequestChangePassword from "@/components/RequestChangePassword";
 import { useState } from "react";
 

@@ -1,17 +1,20 @@
 const express = require("express");
 const session = require("express-session");
-const Keycloak = require("keycloak-connect");
-const authRoutes = require("./routes/auth");
-const keycloakConfig = require("../keycloak.config");
-
-const app = express();
-const memoryStore = new session.MemoryStore();
 const cors = require("cors");
+
+const { keycloak, memoryStore } = require("./keycloak");
+const userRoutes = require("./routes/user");
+const quizRoutes = require("./routes/quiz");
+const sessionRoutes = require("./routes/session");
+const verifyToken = require("./middlwares/keycloakToken");
+const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "http://localhost"],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -24,15 +27,11 @@ app.use(
   })
 );
 
-const keycloak = new Keycloak({ store: memoryStore }, keycloakConfig);
-app.use(keycloak.middleware());
-
 app.use(express.json());
-
-app.use("/api/auth", authRoutes);
-// app.use("/api/public", publicRoutes);
-// app.use("/api/secure", keycloak.protect(), secureRoutes);
-// app.use("/api/users", keycloak.protect(), proxyRoutes);
+//token
+app.use("/api/user", userRoutes);
+app.use("/api/quiz", quizRoutes);
+app.use("/api/session", sessionRoutes);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

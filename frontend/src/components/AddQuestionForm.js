@@ -3,7 +3,11 @@
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
+import { useAuth } from "@/context/AuthContext";
+
 const AddQuestionForm = ({ quizId }) => {
+  const { token } = useAuth();
+
   const initialValues = {
     type: "single",
     text: "",
@@ -25,8 +29,15 @@ const AddQuestionForm = ({ quizId }) => {
 
   const handleSubmit = async (values, { resetForm }) => {
     try {
-      //TODO
-      await axios.post("http://localhost:3000/api/", { quizId, ...values });
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/quiz`,
+        { quizId, ...values },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       alert("Question added!");
       resetForm();
     } catch (err) {

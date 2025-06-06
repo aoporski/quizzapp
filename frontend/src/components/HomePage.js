@@ -1,20 +1,30 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext"; // ⬅️ import kontekstu
 
 const HomePage = () => {
-  const [isLogged, setIsLogged] = useState(false);
+  const { isAuthenticated } = useAuth(); // ⬅️ sprawdzamy, czy zalogowany
 
   return (
     <div>
       <h1>Welcome to Thousand</h1>
       <ul>
-        <li>
-          <Link href="/login">Log in</Link>
-        </li>
-        <li>
-          <Link href="/register">Register</Link>
-        </li>
+        {!isAuthenticated ? (
+          <>
+            <li>
+              <Link href="/login">Log in</Link>
+            </li>
+            <li>
+              <Link href="/register">Register</Link>
+            </li>
+          </>
+        ) : (
+          <>
+            <li>
+              <Link href="/profile">Go to Profile</Link>
+            </li>
+          </>
+        )}
       </ul>
     </div>
   );
