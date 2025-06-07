@@ -1,6 +1,7 @@
 const db = require('../db/postgres');
 const User = db.User;
 const UserProfile = require('../db/mongo/models/userProfile');
+const { updateKeycloakUser } = require('./keycloakUser');
 
 async function updateProfile(userId, data) {
   try {
@@ -36,9 +37,9 @@ async function completeProfile(userId, data) {
     const user = await User.findByPk(userId);
     if (!user) throw new Error('User not found');
 
-    const { preferred_username, firstName, lastName, country } = data;
+    const { preferred_username, firstName, lastName } = data;
 
-    Object.assign(user, { preferred_username, firstName, lastName, country });
+    Object.assign(user, { preferred_username, firstName, lastName });
     await user.save();
   } catch (err) {
     console.error('Error in completeProfile:', err.message);
@@ -66,7 +67,6 @@ async function getProfile(userId) {
 }
 
 async function getMe(sub) {
-  console.log('almost got me');
   const user = await User.findOne({ where: { sub } });
   if (!user) throw new Error('User not found');
 
@@ -83,17 +83,24 @@ async function updateMe(sub, data) {
     const user = await User.findOne({ where: { sub } });
     if (!user) throw new Error('User not found');
 
-    const { preferred_username, firstName, lastName, country, avatar, bio, privacy } = data;
+    const { preferred_username, firstName, lastName, avatar, bio, privacy } = data;
 
     if (preferred_username !== undefined) user.preferred_username = preferred_username;
     if (firstName !== undefined) user.firstName = firstName;
     if (lastName !== undefined) user.lastName = lastName;
-    if (country !== undefined) user.country = country;
 
     await user.save();
 
     const updatedProfile = await updateProfile(user.id, { avatar, bio, privacy });
 
+    const keycloakPayload = {
+      email: user.email,
+    };
+    if (preferred_username) keycloakPayload.username = preferred_username;
+    if (firstName) keycloakPayload.firstName = firstName;
+    if (lastName) keycloakPayload.lastName = lastName;
+
+    await updateKeycloakUser(sub, keycloakPayload);
     return {
       user,
       profile: updatedProfile,

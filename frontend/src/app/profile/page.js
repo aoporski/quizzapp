@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import UserProfile from "@/components/UserProfile";
-
+import ManageProfile from "@/components/ManageProfile";
 export default function ProfilePage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
@@ -20,6 +20,7 @@ export default function ProfilePage() {
   return (
     <div style={{ padding: "2rem" }}>
       <UserProfile />
+      <ManageProfile />
     </div>
   );
 }

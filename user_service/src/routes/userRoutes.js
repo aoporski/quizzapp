@@ -10,7 +10,7 @@ router.patch('/update-profile', verifyAccessToken, userProfileController.updateP
 router.delete('/delete-profile', verifyAccessToken, userProfileController.deleteProfile);
 
 router.get('/me', verifyAccessToken, userProfileController.getMe);
-router.post('/update-me', verifyAccessToken, userProfileController.updateMe);
+router.put('/update-me', verifyAccessToken, userProfileController.updateMe);
 router.post('/sync', verifyAccessToken, userProfileController.syncUser);
 
 module.exports = router;
