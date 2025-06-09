@@ -30,7 +30,7 @@ app.use(
 app.use(express.json());
 //token
 app.use("/api/user", userRoutes);
-app.use("/api/quiz", quizRoutes);
+app.use("/", quizRoutes);
 app.use("/api/session", sessionRoutes);
 
 const PORT = process.env.PORT || 3001;

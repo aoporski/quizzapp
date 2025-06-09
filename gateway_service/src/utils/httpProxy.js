@@ -8,9 +8,7 @@ function createUserServiceProxy(baseUrl) {
     proxy(baseUrl, {
       proxyReqPathResolver: (req) => {
         const finalPath = req.url;
-        console.log(
-          `[PROXY] 🚀 Forwarding request to user-service: ${finalPath}`
-        );
+        console.log(`[PROXY] 🚀 Forwarding request to service: ${finalPath}`);
         return finalPath;
       },
 

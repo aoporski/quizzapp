@@ -1,8 +1,9 @@
 const quizzService = require('../services/quiz');
+const Quiz = require('../db/mongo/models/quizz');
 
 const createQuizz = async (req, res) => {
-  const { title, description, difficulty, duration, isPrivate, isPublished } = req.body;
-  const authorId = req.user.id;
+  const { title, description, difficulty, duration, category, isPrivate, isPublished } = req.body;
+  const authorId = req.user.keycloakId;
   try {
     const created = await quizzService.createQuizz(
       title,
@@ -11,7 +12,8 @@ const createQuizz = async (req, res) => {
       duration,
       isPrivate,
       isPublished,
-      authorId
+      authorId,
+      category
     );
     res.status(201).json(created);
   } catch (err) {
@@ -21,8 +23,9 @@ const createQuizz = async (req, res) => {
 };
 
 const editQuizz = async (req, res) => {
-  const { title, description, difficulty, duration, isPrivate, isPublished } = req.body;
+  const { title, description, difficulty, duration, category, isPrivate, isPublished } = req.body;
   const { id } = req.params;
+  const authorId = req.user.keycloakId;
   try {
     const edited = await quizzService.editQuizz(
       id,
@@ -31,9 +34,11 @@ const editQuizz = async (req, res) => {
       difficulty,
       duration,
       isPrivate,
-      isPublished
+      isPublished,
+      category,
+      authorId
     );
-    res.status(201).json(edited);
+    res.status(200).json(edited);
   } catch (err) {
     console.error('Error editing quizz:', err.message);
     res.status(500).json({ error: 'Failed to edit quizz' });
@@ -41,9 +46,10 @@ const editQuizz = async (req, res) => {
 };
 
 const deleteQuizz = async (req, res) => {
-  const id = req.params;
+  const { id } = req.params;
+  const authorId = req.user.keycloakId;
   try {
-    const deleted = await quizzService.deleteQuizz(id);
+    const deleted = await quizzService.deleteQuizz(id, authorId);
     res.status(200).json(deleted);
   } catch (err) {
     console.error('Error deleting quizz:', err.message);
@@ -72,9 +78,40 @@ const searchQuizzes = async (req, res) => {
   }
 };
 
+const getMyQuizzes = async (req, res) => {
+  const userId = req.user.keycloakId;
+
+  try {
+    const quizzes = await Quiz.find({ authorId: userId });
+
+    const quizzesWithOwnership = quizzes.map((quiz) => ({
+      ...quiz.toObject(),
+      isOwner: true,
+    }));
+
+    res.status(200).json(quizzesWithOwnership);
+  } catch (err) {
+    console.error('Error fetching my quizzes:', err.message);
+    res.status(500).json({ error: 'Failed to fetch your quizzes' });
+  }
+};
+const getQuizzById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const quiz = await quizzService.getQuizzById(id);
+    if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
+    res.status(200).json(quiz);
+  } catch (err) {
+    console.error('Error getting quiz by id:', err.message);
+    res.status(500).json({ error: 'Failed to fetch quiz' });
+  }
+};
+
 module.exports = {
   createQuizz,
   editQuizz,
   deleteQuizz,
   searchQuizzes,
+  getMyQuizzes,
+  getQuizzById,
 };

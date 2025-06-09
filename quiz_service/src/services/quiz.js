@@ -7,7 +7,8 @@ async function createQuizz(
   duration,
   isPrivate,
   isPublished,
-  authorId
+  authorId,
+  category
 ) {
   const quizz = new Quizz({
     title,
@@ -17,7 +18,9 @@ async function createQuizz(
     isPrivate,
     isPublished,
     authorId,
+    category,
   });
+
   try {
     await quizz.save();
     return quizz;
@@ -27,8 +30,22 @@ async function createQuizz(
   }
 }
 
-async function editQuizz(id, title, description, difficulty, duration, isPrivate, isPublished) {
+async function editQuizz(
+  id,
+  title,
+  description,
+  difficulty,
+  duration,
+  isPrivate,
+  isPublished,
+  category,
+  authorId
+) {
   try {
+    const quiz = await Quizz.findById(id);
+    if (!quiz) throw new Error('Quiz not found');
+    if (quiz.authorId !== authorId) throw new Error('Unauthorized');
+
     const edited = await Quizz.findByIdAndUpdate(
       id,
       {
@@ -38,6 +55,7 @@ async function editQuizz(id, title, description, difficulty, duration, isPrivate
         duration,
         isPrivate,
         isPublished,
+        category,
         updatedAt: new Date(),
       },
       { new: true }
@@ -49,8 +67,12 @@ async function editQuizz(id, title, description, difficulty, duration, isPrivate
   }
 }
 
-async function deleteQuizz(id) {
+async function deleteQuizz(id, authorId) {
   try {
+    const quiz = await Quizz.findById(id);
+    if (!quiz) throw new Error('Quiz not found');
+    if (quiz.authorId !== authorId) throw new Error('Unauthorized');
+
     const deleted = await Quizz.findByIdAndDelete(id);
     return deleted;
   } catch (err) {
@@ -95,7 +117,6 @@ async function searchQuizes(
 
   try {
     const quizzes = await Quizz.find(filters).sort(sortOptions).skip(skip).limit(limitNum);
-
     const total = await Quizz.countDocuments(filters);
 
     return {
@@ -109,5 +130,13 @@ async function searchQuizes(
     throw err;
   }
 }
+async function getQuizzById(id) {
+  try {
+    return await Quizz.findById(id);
+  } catch (err) {
+    console.error('Error in getQuizzById:', err.message);
+    throw err;
+  }
+}
 
-module.exports = { createQuizz, editQuizz, deleteQuizz, searchQuizes };
+module.exports = { createQuizz, editQuizz, deleteQuizz, searchQuizes, getQuizzById };

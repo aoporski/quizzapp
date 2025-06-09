@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
 
-const CreateQuizzForm = () => {
+const CreateQuizForm = () => {
   const { token } = useAuth();
 
   const initialValues = {
@@ -15,6 +15,7 @@ const CreateQuizzForm = () => {
     duration: "",
     isPrivate: false,
     isPublished: false,
+    category: "",
   };
 
   const validationSchema = Yup.object({
@@ -26,19 +27,17 @@ const CreateQuizzForm = () => {
     duration: Yup.number().required("Required").min(1, "Min. 1 minute"),
     isPrivate: Yup.boolean(),
     isPublished: Yup.boolean(),
+    category: Yup.string().required("Required"),
   });
 
   const handleSubmit = async (values, { resetForm }) => {
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/quizzes/create`,
-        values,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.post(`/api/quiz/quiz`, values, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       alert("Quiz created!");
       resetForm();
     } catch (err) {
@@ -64,13 +63,23 @@ const CreateQuizzForm = () => {
         </div>
 
         <div>
-          <Field name="difficulty" placeholder="Difficulty" />
+          <Field as="select" name="difficulty">
+            <option value="">Select difficulty</option>
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </Field>
           <ErrorMessage name="difficulty" component="div" />
         </div>
 
         <div>
           <Field name="duration" type="number" placeholder="Duration" />
           <ErrorMessage name="duration" component="div" />
+        </div>
+
+        <div>
+          <Field name="category" placeholder="Category" />
+          <ErrorMessage name="category" component="div" />
         </div>
 
         <label>
@@ -89,4 +98,4 @@ const CreateQuizzForm = () => {
   );
 };
 
-export default CreateQuizzForm;
+export default CreateQuizForm;

@@ -2,7 +2,7 @@ require('dotenv').config();
 const app = require('./app');
 const db = require('./db/postgres');
 const connectMongo = require('./db/mongo/index');
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3003;
 
 (async () => {
   try {
