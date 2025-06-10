@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext"; // lub ścieżka do twojego pliku
+import { useAuth } from "../context/AuthContext";
 
 export default function UserProfile() {
   const { token, isAuthenticated } = useAuth();

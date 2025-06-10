@@ -36,3 +36,43 @@ psql:
 
 mongo:
 	docker exec -it quizzapp-mongo mongosh
+
+setup-buildx:
+	docker buildx create --name multiarch --use --bootstrap || true
+	docker buildx inspect --bootstrap
+
+# ===== Budowanie i pushowanie obrazów do Docker Hub =====
+
+buildx-user:
+	docker buildx build \
+		--platform linux/amd64,linux/arm64 \
+		-t aoporski/user-service:latest \
+		--push ./user_service
+
+buildx-quiz:
+	docker buildx build \
+		--platform linux/amd64,linux/arm64 \
+		-t aoporski/quiz-service:latest \
+		--push ./quiz_service
+
+buildx-session:
+	docker buildx build \
+		--platform linux/amd64,linux/arm64 \
+		-t aoporski/session-service:latest \
+		--push ./session_service
+
+buildx-gateway:
+	docker buildx build \
+		--platform linux/amd64,linux/arm64 \
+		-t aoporski/gateway-service:latest \
+		--push ./gateway_service
+
+buildx-frontend:
+	docker buildx build \
+		--platform linux/amd64,linux/arm64 \
+		-t aoporski/frontend:latest \
+		--push ./frontend
+
+# ===== Wszystko naraz =====
+
+buildx-all: buildx-user buildx-quiz buildx-session buildx-gateway buildx-frontend

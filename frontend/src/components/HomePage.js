@@ -37,7 +37,7 @@ const HomePage = () => {
             </li>
 
             <li>
-              <Link href="/play">🎮 Play a Random Quiz</Link>
+              <Link href="/play">🎮 Play</Link>
             </li>
           </>
         )}

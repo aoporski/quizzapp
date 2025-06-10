@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 export default function MyQuizzesPage() {
   const { token } = useAuth();
@@ -34,7 +35,9 @@ export default function MyQuizzesPage() {
       <ul>
         {quizzes.map((quiz) => (
           <li key={quiz._id}>
-            {quiz.title} – {quiz.difficulty}
+            <Link href={`/quiz/${quiz._id}`}>
+              {quiz.title} – {quiz.difficulty}
+            </Link>
           </li>
         ))}
       </ul>

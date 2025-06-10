@@ -7,7 +7,7 @@ router.get('/me', verifyAccessToken, quizzController.getMyQuizzes);
 router.get('/', verifyAccessToken, quizzController.searchQuizzes);
 router.get('/:id', verifyAccessToken, quizzController.getQuizzById);
 router.post('/', verifyAccessToken, quizzController.createQuizz);
-router.patch('/', verifyAccessToken, quizzController.editQuizz);
+router.patch('/:id', verifyAccessToken, quizzController.editQuizz);
 router.delete('/', verifyAccessToken, quizzController.deleteQuizz);
 
 module.exports = router;

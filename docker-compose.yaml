@@ -114,7 +114,11 @@ services:
         condition: service_started
     networks:
       - quizzapp
-
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:3002/health"] # dostosuj port!
+      interval: 10s
+      timeout: 5s
+      retries: 5
   quiz:
     build: ./quiz_service
     container_name: quiz
@@ -127,7 +131,11 @@ services:
     networks:
       - quizzapp
     restart: always
-
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:3003/health"] # dostosuj port!
+      interval: 10s
+      timeout: 5s
+      retries: 5
   session:
     build: ./session_service
     container_name: session
@@ -139,6 +147,11 @@ services:
       - redis
     networks:
       - quizzapp
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:3004/health"] # dostosuj port!
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   nginx:
     image: nginx:alpine

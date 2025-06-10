@@ -8,7 +8,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import QuestionForm from "@/components/Question";
 
-export default function EditQuizPage() {
+export default function EditQuizForm() {
   const { token } = useAuth();
   const { id } = useParams();
   const [initialValues, setInitialValues] = useState(null);

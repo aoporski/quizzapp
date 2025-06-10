@@ -15,32 +15,44 @@ const QUESTION_TYPES = [
 
 const QuestionForm = ({ quizId, onSuccess }) => {
   const { token } = useAuth();
-  const [type, setType] = useState("single-choice");
+  const [selectedType, setSelectedType] = useState("single-choice");
 
-  const initialValues = {
-    type,
-    text: "",
-    options: [],
-    correctAnswers: [],
-    points: 1,
-    hint: "",
+  const getInitialValues = (type) => {
+    const base = {
+      type,
+      text: "",
+      points: 1,
+      hint: "",
+    };
+
+    switch (type) {
+      case "true-false":
+        return {
+          ...base,
+          options: ["true", "false"],
+          correctAnswers: ["true"],
+        };
+      case "open-ended":
+        return {
+          ...base,
+          options: [],
+          correctAnswers: [],
+        };
+      default:
+        return {
+          ...base,
+          options: ["", ""],
+          correctAnswers: [""],
+        };
+    }
   };
 
-  const validationSchema = Yup.object({
-    text: Yup.string().required("Required"),
-    points: Yup.number().min(1).required("Required"),
-    options: Yup.array().when("type", {
-      is: (val) => ["single-choice", "multiple-choice"].includes(val),
-      then: Yup.array()
-        .of(Yup.string().required("Required"))
-        .min(2, "Min 2 options"),
-    }),
-    correctAnswers: Yup.array().when("type", {
-      is: (val) => val !== "open-ended",
-      then: Yup.array()
-        .of(Yup.string().required("Required"))
-        .min(1, "At least one correct"),
-    }),
+  // Prostsza walidacja - usunięte warunkowe .when()
+  const validationSchema = Yup.object().shape({
+    type: Yup.string().oneOf(QUESTION_TYPES).required("Required"),
+    text: Yup.string().required("Question text is required"),
+    points: Yup.number().min(1).required("Points are required"),
+    hint: Yup.string(),
   });
 
   const handleSubmit = async (values, { resetForm }) => {
@@ -49,42 +61,42 @@ const QuestionForm = ({ quizId, onSuccess }) => {
         "/api/quiz/question",
         { quizId, ...values },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         }
       );
-      alert("Question added");
+      alert("Question added successfully");
       resetForm();
       onSuccess?.();
     } catch (err) {
-      console.error(err);
-      alert("Error adding question");
+      console.error("Error adding question:", err);
+      alert("Error adding question. Please try again.");
     }
   };
 
   const renderOptions = (values) => {
-    if (type === "true-false") {
-      values.options = ["true", "false"];
-      return null;
+    if (values.type === "true-false") {
+      return <p>Options: true, false (auto)</p>;
     }
 
-    if (type === "open-ended") return null;
+    if (values.type === "open-ended") return null;
 
     return (
       <FieldArray name="options">
         {({ push, remove }) => (
           <div>
-            {values.options.map((opt, index) => (
+            <div>Options:</div>
+            {values.options.map((option, index) => (
               <div key={index}>
                 <Field
                   name={`options.${index}`}
                   placeholder={`Option ${index + 1}`}
                 />
-                <button type="button" onClick={() => remove(index)}>
-                  ❌
-                </button>
+                {values.options.length > 2 && (
+                  <button type="button" onClick={() => remove(index)}>
+                    ❌
+                  </button>
+                )}
               </div>
             ))}
             <button type="button" onClick={() => push("")}>
@@ -97,27 +109,45 @@ const QuestionForm = ({ quizId, onSuccess }) => {
   };
 
   const renderCorrectAnswers = (values) => {
-    if (type === "open-ended") return null;
+    if (values.type === "open-ended") return null;
 
     return (
       <FieldArray name="correctAnswers">
         {({ push, remove }) => (
           <div>
-            <label>Correct Answers:</label>
-            {values.correctAnswers.map((ans, i) => (
-              <div key={i}>
-                <Field
-                  name={`correctAnswers.${i}`}
-                  placeholder={`Correct Answer ${i + 1}`}
-                />
-                <button type="button" onClick={() => remove(i)}>
-                  ❌
-                </button>
+            <div>Correct Answers:</div>
+            {values.correctAnswers.map((answer, index) => (
+              <div key={index}>
+                {values.type === "true-false" ? (
+                  <Field as="select" name={`correctAnswers.${index}`}>
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </Field>
+                ) : (
+                  <Field as="select" name={`correctAnswers.${index}`}>
+                    <option value="">Select correct answer</option>
+                    {values.options.map((option, i) => (
+                      <option key={i} value={option}>
+                        {option || `Option ${i + 1}`}
+                      </option>
+                    ))}
+                  </Field>
+                )}
+                {values.correctAnswers.length > 1 && (
+                  <button type="button" onClick={() => remove(index)}>
+                    ❌
+                  </button>
+                )}
               </div>
             ))}
-            <button type="button" onClick={() => push("")}>
-              ➕ Add Correct
-            </button>
+            {values.type !== "single-choice" && (
+              <button
+                type="button"
+                onClick={() => push(values.type === "true-false" ? "true" : "")}
+              >
+                ➕ Add Correct Answer
+              </button>
+            )}
           </div>
         )}
       </FieldArray>
@@ -127,23 +157,38 @@ const QuestionForm = ({ quizId, onSuccess }) => {
   return (
     <div>
       <h3>Add Question</h3>
-      <label>Type:</label>
-      <select value={type} onChange={(e) => setType(e.target.value)}>
-        {QUESTION_TYPES.map((t) => (
-          <option key={t} value={t}>
-            {t}
-          </option>
-        ))}
-      </select>
-
       <Formik
-        enableReinitialize
-        initialValues={{ ...initialValues, type }}
-        validationSchema={validationSchema}
+        initialValues={getInitialValues(selectedType)}
         onSubmit={handleSubmit}
+        validationSchema={validationSchema}
+        enableReinitialize
       >
-        {({ values }) => (
+        {({ values, setFieldValue, isSubmitting }) => (
           <Form>
+            <div>
+              <label>Type:</label>
+              <Field
+                as="select"
+                name="type"
+                onChange={(e) => {
+                  const newType = e.target.value;
+                  setSelectedType(newType);
+                  // Reset all fields when type changes
+                  Object.entries(getInitialValues(newType)).forEach(
+                    ([key, value]) => {
+                      setFieldValue(key, value);
+                    }
+                  );
+                }}
+              >
+                {QUESTION_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </Field>
+            </div>
+
             <div>
               <Field name="text" placeholder="Question text" />
               <ErrorMessage name="text" component="div" />
@@ -153,7 +198,7 @@ const QuestionForm = ({ quizId, onSuccess }) => {
             {renderCorrectAnswers(values)}
 
             <div>
-              <Field name="points" type="number" placeholder="Points" />
+              <Field name="points" type="number" placeholder="Points" min="1" />
               <ErrorMessage name="points" component="div" />
             </div>
 
@@ -161,7 +206,9 @@ const QuestionForm = ({ quizId, onSuccess }) => {
               <Field name="hint" placeholder="Hint (optional)" />
             </div>
 
-            <button type="submit">Save Question</button>
+            <button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save Question"}
+            </button>
           </Form>
         )}
       </Formik>

@@ -2,10 +2,12 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginClient() {
   const { keycloak, isAuthenticated } = useAuth();
   const [isClient, setIsClient] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setIsClient(true);
@@ -16,6 +18,12 @@ export default function LoginClient() {
       keycloak.login();
     }
   }, [isClient, isAuthenticated, keycloak]);
+
+  useEffect(() => {
+    if (isClient && isAuthenticated) {
+      router.push("/");
+    }
+  }, [isClient, isAuthenticated]);
 
   return null;
 }

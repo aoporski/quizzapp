@@ -9,8 +9,10 @@ export default function QuizDetailsPage() {
   const { token } = useAuth();
   const params = useParams();
   const router = useRouter();
+
   const [quiz, setQuiz] = useState(null);
   const [questions, setQuestions] = useState([]);
+  const [isOwner, setIsOwner] = useState(false);
 
   const fetchQuiz = async () => {
     try {
@@ -36,12 +38,37 @@ export default function QuizDetailsPage() {
     }
   };
 
+  const fetchUserAndCheckOwnership = async () => {
+    try {
+      const res = await fetch(`/api/user/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+      const data = await res.json();
+
+      const quizOwnerId = quiz?.authorId?.toString?.();
+      if (data.user?.sub && quizOwnerId) {
+        setIsOwner(data.user.sub === quizOwnerId);
+      }
+    } catch (err) {
+      console.error("Failed to verify ownership:", err);
+    }
+  };
+
   useEffect(() => {
     if (params.id && token) {
       fetchQuiz();
       fetchQuestions();
     }
   }, [params.id, token]);
+
+  useEffect(() => {
+    if (quiz && token) {
+      fetchUserAndCheckOwnership();
+    }
+  }, [quiz, token]);
 
   if (!quiz) return <p>Loading...</p>;
 
@@ -55,8 +82,17 @@ export default function QuizDetailsPage() {
       <p>
         <strong>Duration:</strong> {quiz.duration} min
       </p>
+      <p>
+        <strong>Category:</strong> {quiz.category}
+      </p>
+      <p>
+        <strong>Private:</strong> {quiz.isPrivate ? "Yes 🔒" : "No 🌍"}
+      </p>
+      <p>
+        <strong>Published:</strong> {quiz.isPublished ? "Yes ✅" : "No 🚧"}
+      </p>
 
-      {quiz.isOwner ? (
+      {isOwner ? (
         <div>
           <button onClick={() => router.push(`/quiz/edit/${quiz._id}`)}>
             ✏️ Edit Quiz
@@ -69,11 +105,12 @@ export default function QuizDetailsPage() {
       )}
 
       <h3>Questions</h3>
+      {questions.length === 0 && <p>No questions yet.</p>}
       <ul>
         {questions.map((q) => (
           <li key={q._id}>
             <strong>{q.text}</strong>
-            {quiz.isOwner && (
+            {isOwner && (
               <>
                 <button
                   onClick={() =>

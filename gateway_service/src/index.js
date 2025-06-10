@@ -30,9 +30,12 @@ app.use(
 app.use(express.json());
 //token
 app.use("/api/user", userRoutes);
-app.use("/", quizRoutes);
 app.use("/api/session", sessionRoutes);
+app.use("/", quizRoutes);
 
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Gateway running at http://localhost:${PORT}`);
