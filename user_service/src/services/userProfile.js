@@ -3,6 +3,24 @@ const User = db.User;
 const UserProfile = require('../db/mongo/models/userProfile');
 const { updateKeycloakUser } = require('./keycloakUser');
 
+async function getUserById(userId) {
+  try {
+    const user = await User.findOne({
+      where: { sub: userId },
+      attributes: ['id', 'preferred_username', 'email', 'firstName', 'lastName'],
+    });
+    if (!user) {
+      const error = new Error('User not found');
+      error.status = 404;
+      throw error;
+    }
+    return user;
+  } catch (err) {
+    console.error('Error in getUserById:', err.message);
+    throw err;
+  }
+}
+
 async function updateProfile(userId, data) {
   try {
     const { avatar, bio, privacy } = data;
@@ -118,4 +136,5 @@ module.exports = {
   getProfile,
   getMe,
   updateMe,
+  getUserById,
 };

@@ -13,6 +13,7 @@ export default function QuizDetailsPage() {
   const [quiz, setQuiz] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [isOwner, setIsOwner] = useState(false);
+  const [authorUsername, setAuthorUsername] = useState(null);
 
   const fetchQuiz = async () => {
     try {
@@ -35,6 +36,19 @@ export default function QuizDetailsPage() {
       setQuestions(res.data);
     } catch (err) {
       console.error("Error loading questions:", err);
+    }
+  };
+
+  const fetchAuthorUsername = async (authorId) => {
+    try {
+      if (!authorId) return;
+      const res = await axios.get(`/api/user/${authorId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      });
+      setAuthorUsername(res.data.preferred_username);
+    } catch (err) {
+      console.error("Failed to load author username:", err);
     }
   };
 
@@ -67,6 +81,7 @@ export default function QuizDetailsPage() {
   useEffect(() => {
     if (quiz && token) {
       fetchUserAndCheckOwnership();
+      fetchAuthorUsername(quiz.authorId);
     }
   }, [quiz, token]);
 
@@ -91,11 +106,17 @@ export default function QuizDetailsPage() {
       <p>
         <strong>Published:</strong> {quiz.isPublished ? "Yes ✅" : "No 🚧"}
       </p>
+      <p>
+        <strong>Author:</strong> {authorUsername || quiz.authorId}
+      </p>
 
       {isOwner ? (
         <div>
           <button onClick={() => router.push(`/quiz/edit/${quiz._id}`)}>
             ✏️ Edit Quiz
+          </button>
+          <button onClick={() => router.push(`/play/${quiz._id}`)}>
+            🎮 Start Quiz
           </button>
         </div>
       ) : (

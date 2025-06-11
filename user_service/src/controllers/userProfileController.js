@@ -103,6 +103,16 @@ const syncUser = async (req, res) => {
   }
 };
 
+const getUserById = async (req, res) => {
+  try {
+    const user = await userService.getUserById(req.params.id);
+    res.json(user);
+  } catch (err) {
+    console.error('UserById error:', err);
+    return res.status(500).json({ message: 'User sync failed' });
+  }
+};
+
 module.exports = {
   updateProfile,
   deleteProfile,
@@ -111,4 +121,5 @@ module.exports = {
   getMe,
   updateMe,
   syncUser,
+  getUserById,
 };
