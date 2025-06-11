@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // ✅ zabezpieczenie przed uruchomieniem w SSR
     if (typeof window === "undefined") return;
 
     const kc = new Keycloak({
@@ -39,7 +38,7 @@ export const AuthProvider = ({ children }) => {
           });
         };
       } else {
-        setKeycloak(kc); // nawet jeśli nie authenticated
+        setKeycloak(kc);
       }
     });
   }, []);

@@ -4,7 +4,15 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
 const HomePage = () => {
-  const { isAuthenticated } = useAuth();
+  const { keycloak, isAuthenticated } = useAuth();
+
+  const handleLogout = () => {
+    if (keycloak) {
+      keycloak.logout({
+        redirectUri: window.location.origin,
+      });
+    }
+  };
 
   return (
     <div>
@@ -38,6 +46,10 @@ const HomePage = () => {
 
             <li>
               <Link href="/play">🎮 Play</Link>
+            </li>
+
+            <li>
+              <button onClick={handleLogout}>🚪 Logout</button>
             </li>
           </>
         )}
