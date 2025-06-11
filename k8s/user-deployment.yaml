@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yaml -o k8s/
+    kompose.version: 1.36.0 (HEAD)
+  labels:
+    io.kompose.service: user
+  name: user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: user
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yaml -o k8s/
+        kompose.version: 1.36.0 (HEAD)
+      labels:
+        io.kompose.service: user
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: user-service--env
+            - secretRef:
+                name: user-secret
+          image: aoporski/user-service:latest
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          name: user
+          ports:
+            - containerPort: 3002
+              protocol: TCP
+      restartPolicy: Always

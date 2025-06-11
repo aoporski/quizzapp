@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-config
+  labels:
+    app: gateway
+data:
+  KEYCLOAK_CLIENT: frontend
+  KEYCLOAK_REALM: quizzapp
+  KEYCLOAK_SERVER_URL: http://localhost:8080

@@ -11,7 +11,12 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost",
+      "http://keycloak.local",
+      "http://quiz.local",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -29,6 +34,7 @@ app.use(
 
 app.use(express.json());
 //token
+
 app.use("/api/user", userRoutes);
 app.use("/api/session", sessionRoutes);
 app.use("/", quizRoutes);
@@ -36,6 +42,7 @@ app.use("/", quizRoutes);
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Gateway running at http://localhost:${PORT}`);

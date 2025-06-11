@@ -115,7 +115,7 @@ services:
     networks:
       - quizzapp
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:3002/health"] # dostosuj port!
+      test: ["CMD", "curl", "--fail", "http://localhost:3002/health"]
       interval: 10s
       timeout: 5s
       retries: 5

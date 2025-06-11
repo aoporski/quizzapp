@@ -23,6 +23,10 @@ const sessionRoutes = require('./routes/sessionRoutes');
 
 app.use('/', sessionRoutes);
 
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Not Found' });
 });

@@ -1,0 +1,113 @@
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: quizzapp-ingress
+#   annotations:
+#     nginx.ingress.kubernetes.io/rewrite-target: /$2
+#     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+#     nginx.ingress.kubernetes.io/use-regex: "true"
+# spec:
+#   ingressClassName: nginx
+#   rules:
+#     - host: quiz.local
+#       http:
+#         paths:
+#           - path: /api(/|$)(.*)
+#             pathType: ImplementationSpecific
+#             backend:
+#               service:
+#                 name: gateway
+#                 port:
+#                   number: 3001
+#           - path: /?(.*)
+#             pathType: ImplementationSpecific
+#             backend:
+#               service:
+#                 name: frontend
+#                 port:
+#                   number: 3000
+#     - host: keycloak.local
+#       http:
+#         paths:
+#           - path: /
+#             pathType: ImplementationSpecific
+#             backend:
+#               service:
+#                 name: keycloak
+#                 port:
+#                   number: 8080
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: quizzapp-ingress
+#   annotations:
+#     nginx.ingress.kubernetes.io/rewrite-target: /$2
+#     nginx.ingress.kubernetes.io/use-regex: "true"
+#     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+# spec:
+#   ingressClassName: nginx
+#   rules:
+#     - host: quiz.local
+#       http:
+#         paths:
+#           - path: /api(/|$)(.*)
+#             pathType: ImplementationSpecific
+#             backend:
+#               service:
+#                 name: gateway
+#                 port:
+#                   number: 3001
+
+#           - path: /?(.*)
+#             pathType: ImplementationSpecific
+#             backend:
+#               service:
+#                 name: frontend
+#                 port:
+#                   number: 3000
+#     - host: keycloak.local
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: keycloak
+#                 port:
+#                   number: 8080
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quizzapp-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: quiz.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80 #3000
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway
+                port:
+                  number: 3001
+    - host: keycloak.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak
+                port:
+                  number: 8080

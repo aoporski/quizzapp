@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quiz
+  labels:
+    app: quiz
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quiz
+  template:
+    metadata:
+      labels:
+        app: quiz
+    spec:
+      containers:
+        - name: quiz
+          image: aoporski/quiz-service:latest
+          ports:
+            - containerPort: 3003
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: quiz-config
+            - secretRef:
+                name: quiz-secret
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3003
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+      restartPolicy: Always

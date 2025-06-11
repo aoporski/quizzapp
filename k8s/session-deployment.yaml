@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: session
+  labels:
+    app: session
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: session
+  template:
+    metadata:
+      labels:
+        app: session
+    spec:
+      containers:
+        - name: session
+          image: aoporski/session-service:latest
+          ports:
+            - containerPort: 3004
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: session-config
+            - secretRef:
+                name: session-secret
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3004
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+      restartPolicy: Always
