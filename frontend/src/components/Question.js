@@ -47,7 +47,6 @@ const QuestionForm = ({ quizId, onSuccess }) => {
     }
   };
 
-  // Prostsza walidacja - usunięte warunkowe .when()
   const validationSchema = Yup.object().shape({
     type: Yup.string().oneOf(QUESTION_TYPES).required("Required"),
     text: Yup.string().required("Question text is required"),
