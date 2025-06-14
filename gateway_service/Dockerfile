@@ -1,11 +1,15 @@
-FROM node:20
-
+FROM node:18-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
-
+RUN npm install --omit=dev
 COPY . .
 
-EXPOSE 3001
+FROM node:18-alpine
+WORKDIR /app
+
+COPY --from=builder /app .
+ENV NODE_ENV=production
+EXPOSE 3000
+
 CMD ["node", "src/index.js"]
