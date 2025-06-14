@@ -14,25 +14,19 @@ export default function UserProfile() {
 
     const fetchProfile = async () => {
       try {
-        console.log(token);
-        const res = await fetch(`api/user/me`, {
+        const res = await fetch(`/api/user/me`, {
           credentials: "include",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
-        console.log("Status:", res.status);
 
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        console.log(data);
 
         setUser(data.user);
         setProfile(data.profile);
-
-        console.log("user", user);
-        console.log("profile", profile);
       } catch (err) {
         console.error("Błąd pobierania profilu:", err);
       } finally {
@@ -59,11 +53,37 @@ export default function UserProfile() {
         <strong>Imię i nazwisko:</strong> {user.firstName} {user.lastName}
       </p>
       <p>
-        <strong>Bio:</strong> {profile?.bio}
+        <strong>Bio:</strong> {profile?.bio || "–"}
       </p>
-      <p>
-        <strong>Średni wynik:</strong> {profile?.stats?.averageScore}
-      </p>
+
+      {profile?.stats && (
+        <>
+          <h3>📊 Statystyki</h3>
+          <p>
+            <strong>Średni wynik:</strong> {profile.stats.averageScore}%
+          </p>
+          <p>
+            <strong>Najlepszy wynik:</strong> {profile.stats.bestScore}%
+          </p>
+          <p>
+            <strong>Łączna liczba quizów:</strong> {profile.stats.totalQuizzes}
+          </p>
+        </>
+      )}
+
+      {profile?.history && profile.history.length > 0 && (
+        <>
+          <h3>🕓 Historia quizów</h3>
+          <ul>
+            {profile.history.map((h, i) => (
+              <li key={i}>
+                Quiz: {h.quizId} | Wynik: {h.score}/{h.total} ({h.percentage}%)
+                | Data: {new Date(h.completedAt).toLocaleString()}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 }

@@ -5,6 +5,21 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
 
+function ResultSummary({ score, total, percentage, duration }) {
+  return (
+    <div>
+      <h2>🎉 Quiz completed!</h2>
+      <p>
+        Score: {score} / {total}
+      </p>
+      <p>Percentage: {percentage}%</p>
+      <p>
+        Time taken: {Math.floor(duration / 60)}m {duration % 60}s
+      </p>
+    </div>
+  );
+}
+
 export default function PlayQuizPage() {
   const { token } = useAuth();
   const { id: quizId } = useParams();
@@ -15,6 +30,7 @@ export default function PlayQuizPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [completed, setCompleted] = useState(false);
+  const [result, setResult] = useState(null);
 
   const currentQuestion = questions[currentIndex];
   const currentAnswer =
@@ -70,7 +86,7 @@ export default function PlayQuizPage() {
         `/api/session/${quizId}/answer`,
         {
           questionId: currentQuestion._id,
-          response: currentAnswer,
+          response: String(currentAnswer),
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -81,7 +97,7 @@ export default function PlayQuizPage() {
       if (currentIndex + 1 < questions.length) {
         setCurrentIndex((prev) => prev + 1);
       } else {
-        await axios.post(
+        const res = await axios.post(
           `/api/session/${quizId}/complete`,
           {},
           {
@@ -89,6 +105,7 @@ export default function PlayQuizPage() {
             withCredentials: true,
           }
         );
+        setResult(res.data);
         setCompleted(true);
       }
     } catch (err) {
@@ -162,7 +179,7 @@ export default function PlayQuizPage() {
   };
 
   if (!questions.length) return <p>Loading...</p>;
-  if (completed) return <p>🎉 Quiz completed!</p>;
+  if (completed && result) return <ResultSummary {...result} />;
 
   return (
     <div>

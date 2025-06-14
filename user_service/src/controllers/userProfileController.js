@@ -38,7 +38,7 @@ const completeProfile = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-    const profile = await userService.getProfile(req.user.id);
+    const profile = await userService.getProfile(req.user.id, req.token);
     res.status(200).json(profile);
   } catch (err) {
     console.error('Error getting profile:', err.message);
@@ -52,7 +52,7 @@ const getMe = async (req, res) => {
     const user = await User.findOne({ where: { sub } });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const profile = await userService.getProfile(user.id);
+    const profile = await userService.getProfile(user.id, req.headers.authorization);
     return res.json({ user, profile });
   } catch (err) {
     console.error('getMe error:', err.message);
