@@ -16,7 +16,7 @@ const HomePage = () => {
 
   return (
     <div>
-      <h1>🎯 Welcome to Thousand</h1>
+      <h1>🎯 Welcome to QuizzApp</h1>
 
       <ul>
         {!isAuthenticated ? (

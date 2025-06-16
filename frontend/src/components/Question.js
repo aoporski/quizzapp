@@ -47,7 +47,6 @@ const QuestionForm = ({ quizId, onSuccess }) => {
     }
   };
 
-  // Prostsza walidacja - usunięte warunkowe .when()
   const validationSchema = Yup.object().shape({
     type: Yup.string().oneOf(QUESTION_TYPES).required("Required"),
     text: Yup.string().required("Question text is required"),
@@ -173,7 +172,7 @@ const QuestionForm = ({ quizId, onSuccess }) => {
                 onChange={(e) => {
                   const newType = e.target.value;
                   setSelectedType(newType);
-                  // Reset all fields when type changes
+
                   Object.entries(getInitialValues(newType)).forEach(
                     ([key, value]) => {
                       setFieldValue(key, value);

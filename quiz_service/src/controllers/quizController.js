@@ -2,8 +2,11 @@ const quizzService = require('../services/quiz');
 const Quiz = require('../db/mongo/models/quizz');
 
 const createQuizz = async (req, res) => {
-  const { title, description, difficulty, duration, category, isPrivate, isPublished } = req.body;
+  const { title, description, difficulty, duration, categories, tags, isPrivate, isPublished } =
+    req.body;
+
   const authorId = req.user.keycloakId;
+
   try {
     const created = await quizzService.createQuizz(
       title,
@@ -13,7 +16,8 @@ const createQuizz = async (req, res) => {
       isPrivate,
       isPublished,
       authorId,
-      category
+      categories,
+      tags
     );
     res.status(201).json(created);
   } catch (err) {
@@ -23,9 +27,12 @@ const createQuizz = async (req, res) => {
 };
 
 const editQuizz = async (req, res) => {
-  const { title, description, difficulty, duration, category, isPrivate, isPublished } = req.body;
+  const { title, description, difficulty, duration, categories, tags, isPrivate, isPublished } =
+    req.body;
+
   const { id } = req.params;
   const authorId = req.user.keycloakId;
+
   try {
     const edited = await quizzService.editQuizz(
       id,
@@ -35,7 +42,8 @@ const editQuizz = async (req, res) => {
       duration,
       isPrivate,
       isPublished,
-      category,
+      categories,
+      tags,
       authorId
     );
     res.status(200).json(edited);
@@ -48,6 +56,7 @@ const editQuizz = async (req, res) => {
 const deleteQuizz = async (req, res) => {
   const { id } = req.params;
   const authorId = req.user.keycloakId;
+
   try {
     const deleted = await quizzService.deleteQuizz(id, authorId);
     res.status(200).json(deleted);
@@ -58,11 +67,12 @@ const deleteQuizz = async (req, res) => {
 };
 
 const searchQuizzes = async (req, res) => {
-  const { category, difficulty, language, keyword, sortBy, order, page, limit } = req.query;
+  const { category, tags, difficulty, language, keyword, sortBy, order, page, limit } = req.query;
 
   try {
     const results = await quizzService.searchQuizes(
       category,
+      tags,
       difficulty,
       language,
       keyword,
@@ -95,8 +105,10 @@ const getMyQuizzes = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch your quizzes' });
   }
 };
+
 const getQuizzById = async (req, res) => {
   const { id } = req.params;
+
   try {
     const quiz = await quizzService.getQuizzById(id);
     if (!quiz) return res.status(404).json({ error: 'Quiz not found' });

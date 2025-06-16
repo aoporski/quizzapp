@@ -15,7 +15,6 @@ export default function EditProfileForm() {
       preferred_username: "",
       firstName: "",
       lastName: "",
-      avatar: "",
       bio: "",
       privacy: "public",
     },
@@ -25,7 +24,6 @@ export default function EditProfileForm() {
         .required("Required"),
       firstName: Yup.string().required("Required"),
       lastName: Yup.string().required("Required"),
-      avatar: Yup.string().url("Invalid URL"),
       bio: Yup.string().max(300, "Max. 300 characters"),
       privacy: Yup.string().oneOf(["public", "private", "friends-only"]),
     }),
@@ -61,7 +59,6 @@ export default function EditProfileForm() {
           preferred_username: user?.preferred_username || "",
           firstName: user?.firstName || "",
           lastName: user?.lastName || "",
-          avatar: profile?.avatar || "",
           bio: profile?.bio || "",
           privacy: profile?.privacy || "public",
         });
@@ -110,17 +107,6 @@ export default function EditProfileForm() {
       />
       {formik.touched.lastName && formik.errors.lastName && (
         <div style={{ color: "red" }}>{formik.errors.lastName}</div>
-      )}
-
-      <input
-        type="text"
-        name="avatar"
-        placeholder="Avatar URL"
-        value={formik.values.avatar}
-        onChange={formik.handleChange}
-      />
-      {formik.touched.avatar && formik.errors.avatar && (
-        <div style={{ color: "red" }}>{formik.errors.avatar}</div>
       )}
 
       <textarea

@@ -31,8 +31,8 @@ module.exports = (req, res, next) => {
     getKey,
     {
       algorithms: ['RS256'],
-      issuer: 'http://localhost:8080/realms/quizzapp', // UWAGA 👇
-      audience: 'account', // <- To musi się zgadzać z `client_id` frontendowego klienta w Keycloak
+      issuer: 'http://localhost:8080/realms/quizzapp',
+      audience: 'account',
     },
     (err, decoded) => {
       if (err) {

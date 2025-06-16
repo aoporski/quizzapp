@@ -24,9 +24,8 @@ async function getUserById(userId) {
 
 async function updateProfile(userId, data) {
   try {
-    const { avatar, bio, privacy } = data;
+    const { bio, privacy } = data;
     const updateFields = {};
-    if (avatar !== undefined) updateFields.avatar = avatar;
     if (bio !== undefined) updateFields.bio = bio;
     if (privacy !== undefined) updateFields.privacy = privacy;
 
@@ -87,7 +86,6 @@ async function completeProfile(userId, data) {
     if (!user) throw new Error('User not found');
 
     const { preferred_username, firstName, lastName } = data;
-
     Object.assign(user, { preferred_username, firstName, lastName });
     await user.save();
   } catch (err) {
@@ -114,7 +112,6 @@ async function getProfile(userId, token = null) {
     }
 
     return {
-      avatar: profile.avatar,
       bio: profile.bio,
       privacy: profile.privacy,
       stats,
@@ -125,11 +122,12 @@ async function getProfile(userId, token = null) {
     throw new Error('Could not fetch profile');
   }
 }
+
 async function getMe(sub, token) {
   const user = await User.findOne({ where: { sub } });
   if (!user) throw new Error('User not found');
 
-  const profile = await userService.getProfile(user.id, token);
+  const profile = await getProfile(user.id, token);
   return {
     user,
     profile,
@@ -141,7 +139,7 @@ async function updateMe(sub, data) {
     const user = await User.findOne({ where: { sub } });
     if (!user) throw new Error('User not found');
 
-    const { preferred_username, firstName, lastName, avatar, bio, privacy } = data;
+    const { preferred_username, firstName, lastName, bio, privacy } = data;
 
     if (preferred_username !== undefined) user.preferred_username = preferred_username;
     if (firstName !== undefined) user.firstName = firstName;
@@ -149,7 +147,7 @@ async function updateMe(sub, data) {
 
     await user.save();
 
-    const updatedProfile = await updateProfile(user.id, { avatar, bio, privacy });
+    const updatedProfile = await updateProfile(user.id, { bio, privacy });
 
     const keycloakPayload = {
       email: user.email,

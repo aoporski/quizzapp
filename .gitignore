@@ -1,3 +1,4 @@
 .env
 /keycloak/export
 auth_service/
+keycloak/

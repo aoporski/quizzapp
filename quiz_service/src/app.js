@@ -21,9 +21,13 @@ app.use(
 
 const quizzRoutes = require('./routes/quizRoutes');
 const questionRoutes = require('./routes/questionRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+const tagRoutes = require('./routes/tagRoutes');
 
 app.use('/quiz', quizzRoutes);
 app.use('/question', questionRoutes);
+app.use('/category', categoryRoutes);
+app.use('/tag', tagRoutes);
 
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Not Found' });
