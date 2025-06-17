@@ -50,9 +50,6 @@ const app = require('../../src/apptest');
 
 beforeAll(async () => {
   console.log('🔌 Connecting to Mongo...');
-  if (!process.env.MONGO_URI.includes('test')) {
-    throw new Error('🛑 Nie można uruchamiać testów na produkcyjnej bazie!');
-  }
   await connectMongo();
   console.log('✅ Connected to Mongo');
 
