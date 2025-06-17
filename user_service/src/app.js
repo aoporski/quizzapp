@@ -4,7 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-
+const verifyAccessToken = require('./middlewares/verifyKeycloakToken');
 const app = express();
 app.use(express.json());
 
@@ -21,7 +21,7 @@ app.use(
 
 const userRoutes = require('../src/routes/userRoutes');
 
-app.use('/', userRoutes);
+app.use('/', verifyAccessToken, userRoutes);
 
 // require('../src/utils/deleteUnverified');
 

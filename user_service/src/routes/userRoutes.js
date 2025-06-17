@@ -1,16 +1,41 @@
 const express = require('express');
 const router = express.Router();
 const userProfileController = require('../controllers/userProfileController');
-const verifyAccessToken = require('../middlewares/verifyKeycloakToken');
+const {
+  completeProfileValidator,
+  updateProfileValidator,
+  updateMeValidator,
+} = require('../validators/userValidator');
+const validate = require('../middlewares/validate');
 
-router.post('/complete-profile', verifyAccessToken, userProfileController.completeProfile);
-router.get('/get-profile', verifyAccessToken, userProfileController.getProfile);
-router.patch('/update-profile', verifyAccessToken, userProfileController.updateProfile);
-router.delete('/delete-profile', verifyAccessToken, userProfileController.deleteProfile);
+router.post(
+  '/complete-profile',
 
-router.get('/me', verifyAccessToken, userProfileController.getMe);
-router.get('/:id', verifyAccessToken, userProfileController.getUserById);
-router.put('/update-me', verifyAccessToken, userProfileController.updateMe);
-router.post('/sync', verifyAccessToken, userProfileController.syncUser);
+  completeProfileValidator,
+  validate,
+  userProfileController.completeProfile
+);
+
+router.patch(
+  '/update-profile',
+
+  updateProfileValidator,
+  validate,
+  userProfileController.updateProfile
+);
+
+router.put(
+  '/update-me',
+
+  updateMeValidator,
+  validate,
+  userProfileController.updateMe
+);
+router.get('/get-profile', userProfileController.getProfile);
+router.delete('/delete-profile', userProfileController.deleteProfile);
+
+router.get('/me', userProfileController.getMe);
+router.get('/:id', userProfileController.getUserById);
+router.post('/sync', userProfileController.syncUser);
 
 module.exports = router;

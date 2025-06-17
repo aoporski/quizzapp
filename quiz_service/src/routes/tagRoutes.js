@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const tagController = require('../controllers/tagController');
-const verifyAccessToken = require('../middlewares/verifyKeycloakToken');
 
-router.get('/', verifyAccessToken, tagController.getAllTags);
+router.get('/', tagController.getAllTags);
 
-router.post('/', verifyAccessToken, tagController.createTag);
+router.post('/', tagController.createTag);
 
-router.delete('/:id', verifyAccessToken, tagController.deleteTag);
+router.delete('/:id', tagController.deleteTag);
 
 module.exports = router;

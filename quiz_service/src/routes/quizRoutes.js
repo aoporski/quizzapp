@@ -1,13 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const quizzController = require('../controllers/quizController');
-const verifyAccessToken = require('../middlewares/verifyKeycloakToken');
 
-router.get('/me', verifyAccessToken, quizzController.getMyQuizzes);
-router.get('/', verifyAccessToken, quizzController.searchQuizzes);
-router.get('/:id', verifyAccessToken, quizzController.getQuizzById);
-router.post('/', verifyAccessToken, quizzController.createQuizz);
-router.patch('/:id', verifyAccessToken, quizzController.editQuizz);
-router.delete('/', verifyAccessToken, quizzController.deleteQuizz);
+router.get('/me', quizzController.getMyQuizzes);
+router.get('/', quizzController.searchQuizzes);
+router.get('/:id', quizzController.getQuizzById);
+router.post('/', quizzController.createQuizz);
+router.patch('/:id', quizzController.editQuizz);
+router.delete('/:id', quizzController.deleteQuizz);
 
 module.exports = router;

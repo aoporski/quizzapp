@@ -18,16 +18,17 @@ app.use(
     max: 100,
   })
 );
+const verifyAccessToken = require('./middlewares/verifyKeycloakToken');
 
 const quizzRoutes = require('./routes/quizRoutes');
 const questionRoutes = require('./routes/questionRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const tagRoutes = require('./routes/tagRoutes');
 
-app.use('/quiz', quizzRoutes);
-app.use('/question', questionRoutes);
-app.use('/category', categoryRoutes);
-app.use('/tag', tagRoutes);
+app.use('/quiz', verifyAccessToken, quizzRoutes);
+app.use('/question', verifyAccessToken, questionRoutes);
+app.use('/category', verifyAccessToken, categoryRoutes);
+app.use('/tag', verifyAccessToken, tagRoutes);
 
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Not Found' });

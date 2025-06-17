@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const userProfileSchema = new mongoose.Schema(
   {
     userId: { type: String, required: true, unique: true },
-    avatar: String,
     bio: String,
     stats: {
       quizzesTaken: { type: Number, default: 0 },
