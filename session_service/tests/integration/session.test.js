@@ -5,9 +5,9 @@ const Session = require('../../src/db/mongo/models/Session');
 const Quiz = require('../../src/db/mongo/models/Quiz');
 const Question = require('../../src/db/mongo/models/Question');
 const Redis = require('ioredis');
-const { getQuestionMeta } = require('../../src/utils/quizApi');
 
 jest.setTimeout(10000);
+
 jest.mock('../../src/utils/quizApi', () => ({
   getQuestionMeta: jest.fn((id, token) =>
     Promise.resolve({
@@ -16,7 +16,40 @@ jest.mock('../../src/utils/quizApi', () => ({
       points: 2,
     })
   ),
+  getAuthorIdMeta: jest.fn(() =>
+    Promise.resolve([
+      {
+        _id: 'quiz1',
+        title: 'Mock Quiz 1',
+        description: 'Description 1',
+        categories: [],
+        tags: [],
+        difficulty: 'easy',
+        duration: 30,
+        isPrivate: false,
+        isPublished: true,
+        authorId: 'mock-author-id',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        _id: 'quiz2',
+        title: 'Mock Quiz 2',
+        description: 'Description 2',
+        categories: [],
+        tags: [],
+        difficulty: 'hard',
+        duration: 45,
+        isPrivate: false,
+        isPublished: true,
+        authorId: 'mock-author-id',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ])
+  ),
 }));
+
 const app = require('../../src/apptest');
 
 const redis = new Redis({ host: 'quizzapp-redis', port: 6379 });
@@ -150,5 +183,18 @@ describe('quizSessionController E2E', () => {
     for (let i = 0; i < dates.length - 1; i++) {
       expect(dates[i]).toBeGreaterThanOrEqual(dates[i + 1]);
     }
+  });
+
+  it('GET /stats/author/:id – returns stats for quiz author', async () => {
+    const res = await request(app).get(`/stats/author/abc-123`).set('Authorization', token);
+
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(1);
+
+    const quizStats = res.body.find((q) => q.quizId === 'quiz1');
+    expect(quizStats).toBeDefined();
+    expect(quizStats.averageScore).toBeGreaterThanOrEqual(0);
+    expect(quizStats.totalCompletions).toBeGreaterThanOrEqual(0);
   });
 });

@@ -7,4 +7,19 @@ async function getQuestionMeta(questionId, token) {
   return res.data;
 }
 
-module.exports = { getQuestionMeta };
+async function getAuthorIdMeta(creatorId, token) {
+  try {
+    const res = await axios.get(`http://gateway:3001/api/quiz/quiz/author/${creatorId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res.data;
+  } catch (err) {
+    console.error(`❌ Failed to fetch quizzes for author ${creatorId}:`, err.message);
+    throw new Error('Unable to fetch quizzes for this author.');
+  }
+}
+
+module.exports = { getQuestionMeta, getAuthorIdMeta };

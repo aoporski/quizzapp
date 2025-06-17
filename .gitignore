@@ -2,3 +2,4 @@
 /keycloak/export
 auth_service/
 keycloak/
+.DS_Store

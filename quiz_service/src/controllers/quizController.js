@@ -119,6 +119,15 @@ const getQuizzById = async (req, res) => {
   }
 };
 
+const getQuizzByAuthor = async (req, res) => {
+  try {
+    const quizzes = await quizzService.getQuizzByAuthor(req.user.keycloakId);
+    res.status(200).json(quizzes);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch quizzes by author' });
+  }
+};
+
 module.exports = {
   createQuizz,
   editQuizz,
@@ -126,4 +135,5 @@ module.exports = {
   searchQuizzes,
   getMyQuizzes,
   getQuizzById,
+  getQuizzByAuthor,
 };

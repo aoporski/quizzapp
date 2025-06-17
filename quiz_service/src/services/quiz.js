@@ -176,10 +176,20 @@ async function getQuizzById(id) {
   }
 }
 
+async function getQuizzByAuthor(authorId) {
+  try {
+    return await Quizz.find({ authorId }).populate('categories').populate('tags');
+  } catch (err) {
+    console.error('Error in getQuizzByAuthor:', err.message);
+    throw err;
+  }
+}
+
 module.exports = {
   createQuizz,
   editQuizz,
   deleteQuizz,
   searchQuizes,
   getQuizzById,
+  getQuizzByAuthor,
 };

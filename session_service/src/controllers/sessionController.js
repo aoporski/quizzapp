@@ -4,10 +4,14 @@ const {
   pauseSession,
   resumeSession,
   completeSession,
+} = require('../services/session');
+
+const {
   getUserStats,
   getUserHistory,
   getUserTrend,
-} = require('../services/session');
+  getAuthorStats,
+} = require('../services/analytics');
 
 exports.start = async (req, res, next) => {
   try {
@@ -82,5 +86,22 @@ exports.getUserTrend = async (req, res) => {
   } catch (err) {
     console.error('[TREND] Error:', err);
     res.status(500).json({ error: 'Could not fetch trend data' });
+  }
+};
+
+exports.getAuthorStats = async (req, res) => {
+  try {
+    const creatorId = req.params.id;
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({ error: 'Missing authorization token' });
+    }
+
+    const stats = await getAuthorStats(creatorId, token);
+    res.status(200).json(stats);
+  } catch (err) {
+    console.error('[CREATOR_STATS] Error:', err);
+    res.status(500).json({ error: 'Could not fetch creator stats' });
   }
 };

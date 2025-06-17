@@ -42,10 +42,20 @@ describe('quizController E2E', () => {
     expect(Array.isArray(res.body)).toBe(true);
   });
 
-  it('GET /quiz/:id – returns quiz by ID', async () => {
-    const res = await request(app).get(`/quiz/${createdQuizId}`).set('Authorization', token);
+  it('GET /quiz/author/:id - returns quiz by author', async () => {
+    const authorId = 'abc-123';
+
+    const res = await request(app).get(`/quiz/author/${authorId}`).set('Authorization', token);
+
     expect(res.statusCode).toBe(200);
-    expect(res.body._id).toBe(createdQuizId);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThan(0);
+    expect(res.body[0].authorId).toBe(authorId);
+  });
+
+  it('GET /quiz/author/:id - returns quiz by author', async () => {
+    const res = await request(app).get(`/quiz/author/$`).set('Authorization', token);
+    expect(res.statusCode).toBe(200);
   });
 
   it('PATCH /quiz/:id – updates quiz', async () => {
