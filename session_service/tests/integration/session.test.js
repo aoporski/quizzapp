@@ -106,4 +106,49 @@ describe('quizSessionController E2E', () => {
     expect(res.body.bestScore).toBe(100);
     expect(res.body.averageScore).toBe(100);
   });
+
+  it('GET /trend – returns user performance trend', async () => {
+    const quiz2 = await Quiz.create({
+      title: 'Second Quiz',
+      description: 'Test 2',
+      difficulty: 'medium',
+      duration: 20,
+      isPrivate: false,
+      isPublished: true,
+      authorId: 'abc-123',
+    });
+
+    const question2 = await Question.create({
+      quizId: quiz2._id,
+      type: 'single-choice',
+      text: '3+3?',
+      options: ['5', '6'],
+      correctAnswers: ['6'],
+      points: 2,
+    });
+
+    await request(app).post(`/start/${quiz2._id}`).set('Authorization', token);
+    await request(app)
+      .post(`/${quiz2._id}/answer`)
+      .set('Authorization', token)
+      .send({ questionId: question2._id, response: '5' }); // zła odpowiedź
+    await request(app).post(`/${quiz2._id}/complete`).set('Authorization', token);
+
+    const res = await request(app).get('/stats/trend').set('Authorization', token);
+
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(2);
+
+    const trend = res.body;
+
+    const percentages = trend.map((e) => e.percentage);
+    expect(percentages).toContain(0);
+    expect(percentages).toContain(100);
+
+    const dates = trend.map((e) => new Date(e.completedAt).getTime());
+    for (let i = 0; i < dates.length - 1; i++) {
+      expect(dates[i]).toBeGreaterThanOrEqual(dates[i + 1]);
+    }
+  });
 });

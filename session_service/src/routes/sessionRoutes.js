@@ -9,5 +9,5 @@ router.post('/:quizId/resume', quizSessionController.resume);
 router.post('/:quizId/complete', quizSessionController.complete);
 router.get('/history', quizSessionController.history);
 router.get('/stats', quizSessionController.stats);
-
+router.get('/stats/trend', quizSessionController.getUserTrend);
 module.exports = router;

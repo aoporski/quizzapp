@@ -192,6 +192,37 @@ async function getUserStats(userId) {
   };
 }
 
+async function getUserTrend(userId, token) {
+  const sessions = await Session.find({ userId, completedAt: { $exists: true } })
+    .sort({ completedAt: -1 })
+    .limit(10);
+
+  const results = await Promise.all(
+    sessions.map(async (s) => {
+      let maxPoints = 0;
+
+      for (const a of s.answers) {
+        try {
+          const { points } = await getQuestionMeta(a.questionId, token); // ✅ dodano token
+          maxPoints += points || 1;
+        } catch {
+          maxPoints += 1;
+        }
+      }
+
+      return {
+        quizId: s.quizId,
+        score: s.score,
+        total: maxPoints,
+        percentage: maxPoints > 0 ? Math.round((s.score / maxPoints) * 100) : 0,
+        completedAt: s.completedAt,
+      };
+    })
+  );
+
+  return results;
+}
+
 module.exports = {
   startSession,
   saveAnswer,
@@ -200,4 +231,5 @@ module.exports = {
   completeSession,
   getUserHistory,
   getUserStats,
+  getUserTrend,
 };

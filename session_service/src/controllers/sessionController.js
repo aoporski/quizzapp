@@ -6,6 +6,7 @@ const {
   completeSession,
   getUserStats,
   getUserHistory,
+  getUserTrend,
 } = require('../services/session');
 
 exports.start = async (req, res, next) => {
@@ -70,5 +71,16 @@ exports.stats = async (req, res, next) => {
     res.json(data);
   } catch (err) {
     next(err);
+  }
+};
+
+exports.getUserTrend = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    const trend = await getUserTrend(req.user.keycloakId, token);
+    res.status(200).json(trend);
+  } catch (err) {
+    console.error('[TREND] Error:', err);
+    res.status(500).json({ error: 'Could not fetch trend data' });
   }
 };
