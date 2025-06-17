@@ -20,8 +20,8 @@ app.use(
 );
 
 const sessionRoutes = require('./routes/sessionRoutes');
-
-app.use('/', sessionRoutes);
+const verifyAccessToken = require('./middlewares/verifyKeycloakToken');
+app.use('/', verifyAccessToken, sessionRoutes);
 
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Not Found' });

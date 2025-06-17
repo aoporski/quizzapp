@@ -7,15 +7,8 @@ const mongoose = require('mongoose');
 const getSessionKey = (userId, quizId) => `quiz-session:${userId}:${quizId}`;
 const axios = require('axios');
 
-async function getQuestionMeta(questionId, token) {
-  const res = await axios.get(`http://gateway:3001/api/quiz/question/${questionId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+const { getQuestionMeta } = require('../../src/utils/quizApi');
 
-  return res.data;
-}
 async function startSession(userId, quizId) {
   const key = getSessionKey(userId, quizId);
   const existing = await redis.get(key);
@@ -70,6 +63,7 @@ async function resumeSession(userId, quizId) {
 
 async function evaluateSession(session, token) {
   let score = 0;
+  let maxPoints = 0;
 
   console.log('[EVALUATE] Total answers:', session.answers.length);
 
@@ -78,6 +72,8 @@ async function evaluateSession(session, token) {
 
     try {
       const { correctAnswers, points } = await getQuestionMeta(ans.questionId, token);
+
+      maxPoints += points || 1;
 
       const correct = Array.isArray(correctAnswers)
         ? correctAnswers.map(String).includes(String(ans.response))
@@ -91,14 +87,14 @@ async function evaluateSession(session, token) {
   }
 
   console.log('[EVALUATE] Final score:', score);
-  return score;
+  return { score, maxPoints };
 }
 async function completeSession(userId, quizId, token) {
   const key = getSessionKey(userId, quizId);
   const session = JSON.parse(await redis.get(key));
   if (!session) throw new Error('No session to complete');
 
-  const score = await evaluateSession(session, token);
+  const { score, maxPoints } = await evaluateSession(session, token);
 
   const sessionDoc = new Session({
     userId,
@@ -115,8 +111,8 @@ async function completeSession(userId, quizId, token) {
 
   return {
     score,
-    total: session.answers.length,
-    percentage: session.answers.length > 0 ? Math.round((score / session.answers.length) * 100) : 0,
+    total: maxPoints,
+    percentage: maxPoints > 0 ? Math.round((score / maxPoints) * 100) : 0,
     duration: Math.round((sessionDoc.completedAt - sessionDoc.startedAt) / 1000),
   };
 }
@@ -124,13 +120,30 @@ async function completeSession(userId, quizId, token) {
 async function getUserHistory(userId) {
   const sessions = await Session.find({ userId }).sort({ completedAt: -1 });
 
-  return sessions.map((s) => ({
-    quizId: s.quizId,
-    score: s.score,
-    total: s.answers.length,
-    percentage: Math.round((s.score / s.answers.length) * 100),
-    completedAt: s.completedAt,
-  }));
+  const results = await Promise.all(
+    sessions.map(async (s) => {
+      let maxPoints = 0;
+
+      for (const a of s.answers) {
+        try {
+          const { points } = await getQuestionMeta(a.questionId);
+          maxPoints += points || 1;
+        } catch {
+          maxPoints += 1;
+        }
+      }
+
+      return {
+        quizId: s.quizId,
+        score: s.score,
+        total: maxPoints,
+        percentage: maxPoints > 0 ? Math.round((s.score / maxPoints) * 100) : 0,
+        completedAt: s.completedAt,
+      };
+    })
+  );
+
+  return results;
 }
 
 async function getUserStats(userId) {
@@ -145,13 +158,27 @@ async function getUserStats(userId) {
     };
   }
 
-  const validSessions = sessions.filter((s) => s.answers.length > 0);
+  const percentScores = [];
 
-  const scoresPercent = validSessions.map((s) => s.score / s.answers.length);
-  const averageScore = scoresPercent.length
-    ? Math.round((scoresPercent.reduce((a, b) => a + b, 0) / scoresPercent.length) * 100)
+  for (const s of sessions) {
+    let maxPoints = 0;
+
+    for (const a of s.answers) {
+      try {
+        const { points } = await getQuestionMeta(a.questionId);
+        maxPoints += points || 1;
+      } catch {
+        maxPoints += 1;
+      }
+    }
+
+    if (maxPoints > 0) percentScores.push(s.score / maxPoints);
+  }
+
+  const averageScore = percentScores.length
+    ? Math.round((percentScores.reduce((a, b) => a + b, 0) / percentScores.length) * 100)
     : 0;
-  const bestScore = scoresPercent.length ? Math.round(Math.max(...scoresPercent) * 100) : 0;
+  const bestScore = percentScores.length ? Math.round(Math.max(...percentScores) * 100) : 0;
 
   const mostRecentQuiz =
     sessions.filter((s) => s.completedAt).sort((a, b) => b.completedAt - a.completedAt)[0]
@@ -164,6 +191,7 @@ async function getUserStats(userId) {
     mostRecentQuiz,
   };
 }
+
 module.exports = {
   startSession,
   saveAnswer,
