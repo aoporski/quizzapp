@@ -62,8 +62,10 @@ describe('quizController E2E', () => {
     const res = await request(app)
       .patch(`/quiz/${createdQuizId}`)
       .set('Authorization', token)
-      .send({ title: 'Updated Quiz' });
-
+      .send({ title: 'Updated Quiz', difficulty: 'medium', duration: 30 });
+    if (res.statusCode !== 200) {
+      console.error('❌ Validation or update error:', res.body);
+    }
     expect(res.statusCode).toBe(200);
     expect(res.body.title).toBe('Updated Quiz');
   });
