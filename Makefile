@@ -30,6 +30,20 @@ keycloak-import:
 		--dir /opt/keycloak/data/export \
 		--realm master \
 		--override true
+keycloak-export-quiz:
+	docker exec quizzapp-keycloak-1 /opt/keycloak/bin/kc.sh export \
+		--dir /opt/keycloak/data/export \
+		--realm quizzapp \
+		--users realm_file
+		
+keycloak-backup-quiz: keycloak-export
+	docker cp quizzapp-keycloak-1:/opt/keycloak/data/export ./keycloak/export
+
+keycloak-import-quiz:
+	docker exec quizzapp-keycloak-1 /opt/keycloak/bin/kc.sh import \
+		--dir /opt/keycloak/data/export \
+		--realm quizzapp \
+		--override true
 		
 psql:
 	docker exec -it quizzapp-postgres psql -U admin -d user_service_db
