@@ -15,9 +15,6 @@ const saveAnswerValidator = [
   body('response').not().isEmpty().withMessage('Response is required'),
 ];
 
-// POST /start/:quizId, /pause, /resume, /complete
-const quizIdOnlyValidator = [...quizIdParam];
-
 module.exports = {
   saveAnswerValidator,
   quizIdOnlyValidator,
