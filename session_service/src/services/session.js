@@ -75,9 +75,21 @@ async function evaluateSession(session, token) {
 
       maxPoints += points || 1;
 
-      const correct = Array.isArray(correctAnswers)
-        ? correctAnswers.map(String).includes(String(ans.response))
-        : String(correctAnswers) === String(ans.response);
+      const normalize = (val) => {
+        if (typeof val === 'boolean') return val.toString();
+        if (typeof val === 'number') return val.toString();
+        return String(val).trim().toLowerCase();
+      };
+
+      const normalizedUserResp = normalize(ans.response);
+
+      let correct = false;
+
+      if (Array.isArray(correctAnswers)) {
+        correct = correctAnswers.some((ans) => normalize(ans) === normalizedUserResp);
+      } else {
+        correct = normalize(correctAnswers) === normalizedUserResp;
+      }
 
       console.log('[EVALUATE] Is correct:', correct);
       if (correct) score += points || 1;

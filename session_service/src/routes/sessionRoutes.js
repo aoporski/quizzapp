@@ -1,14 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const quizSessionController = require('../controllers/sessionController');
-const { saveAnswerValidator, quizIdOnlyValidator } = require('../validators/sessionValidator');
-const { validate } = require('../middlewares/validate');
 
-router.post('/start/:quizId', quizIdOnlyValidator, validate, quizSessionController.start);
-router.post('/:quizId/answer', saveAnswerValidator, validate, quizSessionController.answer);
-router.post('/:quizId/pause', quizIdOnlyValidator, validate, quizSessionController.pause);
-router.post('/:quizId/resume', quizIdOnlyValidator, validate, quizSessionController.resume);
-router.post('/:quizId/complete', quizIdOnlyValidator, validate, quizSessionController.complete);
+router.post('/start/:quizId', quizSessionController.start);
+router.post('/:quizId/answer', quizSessionController.answer);
+router.post('/:quizId/pause', quizSessionController.pause);
+router.post('/:quizId/resume', quizSessionController.resume);
+router.post('/:quizId/complete', quizSessionController.complete);
 
 router.get('/history', quizSessionController.history);
 router.get('/stats', quizSessionController.stats);

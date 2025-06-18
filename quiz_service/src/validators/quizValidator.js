@@ -16,20 +16,7 @@ const editQuizValidator = [
   ...createQuizValidator,
 ];
 
-const searchQuizValidator = [
-  query('category').optional().isMongoId(),
-  query('tags').optional().isString(),
-  query('difficulty').optional().isIn(['easy', 'medium', 'hard']),
-  query('language').optional().isString(),
-  query('keyword').optional().isString(),
-  query('sortBy').optional().isString(),
-  query('order').optional().isIn(['asc', 'desc']),
-  query('page').optional().isInt({ min: 1 }),
-  query('limit').optional().isInt({ min: 1 }),
-];
-
 module.exports = {
   createQuizValidator,
   editQuizValidator,
-  searchQuizValidator,
 };
