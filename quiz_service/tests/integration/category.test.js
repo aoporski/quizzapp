@@ -1,8 +1,9 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
-const connectMongo = require('../../src/db/mongo');
-const app = require('../../src/apptest');
+const connectMongo = require('../../src/db/connectMongoTest');
 const Category = require('../../src/db/mongo/models/category');
+
+const app = require('../../src/apptest');
 
 jest.setTimeout(5000);
 

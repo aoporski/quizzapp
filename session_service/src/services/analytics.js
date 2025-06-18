@@ -84,6 +84,21 @@ async function getUserStats(userId) {
   };
 }
 
+function analyzeTrend(percentages) {
+  if (percentages.length < 2) return 'brak danych';
+
+  let up = 0;
+  let down = 0;
+  for (let i = 1; i < percentages.length; i++) {
+    if (percentages[i] > percentages[i - 1]) up++;
+    else if (percentages[i] < percentages[i - 1]) down++;
+  }
+
+  if (up > down) return 'wzrost';
+  if (down > up) return 'spadek';
+  return 'stały';
+}
+
 async function getUserTrend(userId, token) {
   const sessions = await Session.find({ userId, completedAt: { $exists: true } })
     .sort({ completedAt: -1 })
@@ -112,7 +127,13 @@ async function getUserTrend(userId, token) {
     })
   );
 
-  return results;
+  const percentages = [...results].reverse().map((r) => r.percentage);
+  const trend = analyzeTrend(percentages);
+
+  return {
+    results,
+    trend,
+  };
 }
 const { getAuthorIdMeta } = require('../utils/quizApi');
 

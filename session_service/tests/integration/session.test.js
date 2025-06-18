@@ -1,6 +1,6 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
-const connectMongo = require('../../src/db/mongo');
+const connectMongo = require('../../src/db/connectMongoTest');
 const Session = require('../../src/db/mongo/models/Session');
 const Quiz = require('../../src/db/mongo/models/Quiz');
 const Question = require('../../src/db/mongo/models/Question');
@@ -8,7 +8,6 @@ const Redis = require('ioredis');
 
 jest.setTimeout(10000);
 
-// 👇 poprawne mockowanie quizApi z lokalnym ObjectId
 jest.mock('../../src/utils/quizApi', () => {
   const mongoose = require('mongoose');
   const mockQuiz1Id = new mongoose.Types.ObjectId();

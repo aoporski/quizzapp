@@ -1,6 +1,6 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
-const connectMongo = require('../../src/db/mongo');
+const connectMongo = require('../../src/db/connectMongoTest');
 const Quiz = require('../../src/db/mongo/models/quizz');
 const app = require('../../src/apptest');
 

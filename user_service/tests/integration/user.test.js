@@ -2,7 +2,7 @@ const request = require('supertest');
 const { sequelize } = require('../../src/db/postgres');
 const { User } = require('../../src/db/postgres');
 const UserProfile = require('../../src/db/mongo/models/userProfile');
-const connectMongo = require('../../src/db/mongo');
+const connectMongo = require('../../src/db/connectMongoTest');
 const mongoose = require('mongoose');
 
 jest.setTimeout(3000);

@@ -1,9 +1,10 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
-const connectMongo = require('../../src/db/mongo');
-const app = require('../../src/apptest');
+const connectMongo = require('../../src/db/connectMongoTest');
 const Quiz = require('../../src/db/mongo/models/quizz');
 const Question = require('../../src/db/mongo/models/question');
+
+const app = require('../../src/apptest');
 
 jest.setTimeout(5000);
 
@@ -32,7 +33,7 @@ beforeAll(async () => {
     authorId: mockUser.keycloakId,
   });
 
-  createdQuizId = quiz._id.toString(); // 🔧 ważne: string do porównań z body._id
+  createdQuizId = quiz._id.toString();
 });
 
 afterAll(async () => {
